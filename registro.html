@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Registrar Emergência</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Formulário de Emergência</h2>
+    <form id="emergenciaForm">
+      <input type="text" id="nome" placeholder="Seu nome" required>
+      <input type="text" id="cidade" placeholder="Cidade" required>
+      <input type="text" id="bairro" placeholder="Bairro" required>
+      <input type="tel" id="telefone" placeholder="Telefone para contato" required>
+
+      <label class="label-titulo">Situação:</label>
+      <div class="checkbox-group">
+        <label><input type="checkbox" name="situacao" value="Desabrigado"> Desabrigado</label>
+        <label><input type="checkbox" name="situacao" value="Sem Alimentos"> Sem Alimentos</label>
+        <label><input type="checkbox" name="situacao" value="Apoio Psicológico"> Apoio Psicológico</label>
+      </div>
+
+      <textarea id="observacoes" placeholder="Observações adicionais..."></textarea>
+      <button type="submit">Enviar</button>
+    </form>
+
+    <nav class="nav-links">
+      <a href="painel.html" class="botao">Ver Casos</a>
+      <a href="informacoes.html" class="botao">Informações Úteis</a>
+      <a href="index.html" class="botao">Início</a>
+    </nav>
+
+    <p id="mensagem"></p>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
