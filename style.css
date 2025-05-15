@@ -240,3 +240,63 @@ form label {
   background-color: #b52b27;
 }
 
+/* 1. Garante que o layout se ajuste em qualquer tela */
+@media (max-width: 600px) {
+  body {
+    padding: 20px;
+    height: auto;
+    align-items: flex-start;
+  }
+
+  .container, .container2 {
+    padding: 20px;
+  }
+
+  .botao, button {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .checkbox-group {
+    gap: 6px;
+  }
+
+  .acoes button {
+    font-size: 11px;
+    padding: 5px 8px;
+  }
+}
+
+/* 2. Foco visível para acessibilidade com teclado */
+a:focus, button:focus, input:focus, textarea:focus {
+  outline: 2px solid #000;
+  outline-offset: 2px;
+}
+
+/* 3. Melhor contraste e acessibilidade visual */
+body {
+  background-color: #39db47;
+  color: #111; /* texto escuro padrão */
+}
+
+input, textarea {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+input:focus, textarea:focus {
+  border-color: #0077cc;
+  box-shadow: 0 0 3px #0077cc;
+}
+
+button {
+  font-size: 15px;
+  border-radius: 6px;
+}
+
+/* 4. Adição de transições suaves */
+button, .botao {
+  transition: all 0.2s ease-in-out;
+}
+
