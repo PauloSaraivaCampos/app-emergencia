@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>App Emergência</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 h-screen flex">
+  <!-- Menu Lateral -->
+  <aside class="w-64 bg-white shadow-md p-4 flex flex-col">
+    <h2 class="text-2xl font-bold text-green-600 mb-6">App Emergência</h2>
+    <nav class="flex flex-col gap-4">
+      <button onclick="mostrarAba('registro')" class="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600">Registro</button>
+      <button onclick="mostrarAba('painel')" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Painel de Casos</button>
+      <button onclick="mostrarAba('usuarios')" class="bg-yellow-500 text-white py-2 px-4 rounded hover:bg-yellow-600">Gerenciar Usuários</button>
+    </nav>
+  </aside>
+
+  <!-- Conteúdo -->
+  <main class="flex-1 p-6 overflow-y-auto">
+    <div id="registro" class="aba">
+      <h1 class="text-xl font-semibold mb-4">Registrar Emergência</h1>
+      <form id="emergenciaForm" class="bg-white p-4 rounded shadow-md">
+        <input type="text" id="nome" placeholder="Nome" required class="w-full mb-2 p-2 border rounded">
+        <input type="text" id="cidade" placeholder="Cidade" required class="w-full mb-2 p-2 border rounded">
+        <input type="text" id="bairro" placeholder="Bairro" required class="w-full mb-2 p-2 border rounded">
+        <input type="tel" id="telefone" placeholder="Telefone" required class="w-full mb-2 p-2 border rounded">
+        <textarea id="observacoes" placeholder="Observações" class="w-full mb-2 p-2 border rounded"></textarea>
+        <div class="mb-2">
+          <p class="font-semibold">Situação:</p>
+          <label><input type="checkbox" name="situacao" value="Desabrigado"> Desabrigado</label><br>
+          <label><input type="checkbox" name="situacao" value="Ferido"> Ferido</label><br>
+          <label><input type="checkbox" name="situacao" value="Sem comida"> Sem comida</label><br>
+          <label><input type="checkbox" name="situacao" value="Sem água"> Sem água</label>
+        </div>
+        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Registrar</button>
+        <p id="mensagem" class="mt-2 text-green-600 font-semibold"></p>
+      </form>
+    </div>
+
+    <div id="painel" class="aba hidden">
+      <h1 class="text-xl font-semibold mb-4">Painel de Casos</h1>
+      <div id="listaCasos" class="space-y-4"></div>
+    </div>
+
+    <div id="usuarios" class="aba hidden">
+      <h1 class="text-xl font-semibold mb-4">Gerenciar Usuários</h1>
+      <p>Funções de administração de usuários virão aqui.</p>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('emergenciaForm');
+
+      if (form) {
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+
+          const nome = document.getElementById('nome').value;
+          const cidade = document.getElementById('cidade').value;
+          const bairro = document.getElementById('bairro').value;
+          const telefone = document.getElementById('telefone').value;
+          const observacoes = document.getElementById('observacoes').value;
+
+          const situacoes = [];
+          document.querySelectorAll('input[name="situacao"]:checked').forEach(cb => {
+            situacoes.push(cb.value);
+          });
+
+          const status = "em-atendimento";
+
+          const novoCaso = {
+            id: Date.now(),
+            nome,
+            cidade,
+            bairro,
+            telefone,
+            situacoes,
+            observacoes,
+            status,
+            data: new Date().toLocaleString()
+          };
+
+          let casos = JSON.parse(localStorage.getItem('casos')) || [];
+          casos.push(novoCaso);
+          localStorage.setItem('casos', JSON.stringify(casos));
+
+          document.getElementById('mensagem').innerText = "Emergência registrada com sucesso!";
+          form.reset();
+          atualizarLista();
+        });
+      }
+
+      const listaDiv = document.getElementById('listaCasos');
+
+      function atualizarLista() {
+        if (!listaDiv) return;
+
+        const casos = JSON.parse(localStorage.getItem('casos')) || [];
+        listaDiv.innerHTML = "";
+
+        if (casos.length === 0) {
+          listaDiv.innerHTML = "<p>Nenhum caso registrado.</p>";
+        } else {
+          casos.forEach(caso => {
+            const card = document.createElement('div');
+            card.className = "bg-white p-4 rounded shadow border-l-4 mb-4";
+
+            let statusTexto = "Em Atendimento";
+            if (caso.status === "atendido") statusTexto = "Atendido";
+            if (caso.status === "cancelado") statusTexto = "Cancelado";
+
+            card.innerHTML = `
+              <p><strong>${caso.nome}</strong></p>
+              <p><em>Cidade:</em> ${caso.cidade} - <em>Bairro:</em> ${caso.bairro}</p>
+              <p><em>Telefone:</em> ${caso.telefone}</p>
+              <p><em>Situações:</em> ${caso.situacoes.join(', ')}</p>
+              <p><em>Observações:</em> ${caso.observacoes || "Nenhuma"}</p>
+              <p><span class="inline-block px-2 py-1 rounded text-white text-sm ${caso.status === 'atendido' ? 'bg-green-600' : caso.status === 'cancelado' ? 'bg-red-500' : 'bg-yellow-500'}"><strong>Status:</strong> ${statusTexto}</span></p>
+              <p class="text-sm text-gray-500">${caso.data}</p>
+              <div class="flex gap-2 mt-2">
+                <button onclick="alterarStatus(${caso.id}, 'atendido')" class="bg-green-600 text-white px-2 py-1 rounded">Atendido</button>
+                <button onclick="alterarStatus(${caso.id}, 'em-atendimento')" class="bg-yellow-500 text-white px-2 py-1 rounded">Em Atendimento</button>
+                <button onclick="alterarStatus(${caso.id}, 'cancelado')" class="bg-red-500 text-white px-2 py-1 rounded">Cancelar</button>
+                <button onclick="excluirCaso(${caso.id})" class="bg-gray-600 text-white px-2 py-1 rounded">Excluir</button>
+              </div>
+            `;
+            listaDiv.appendChild(card);
+          });
+        }
+      }
+
+      atualizarLista();
+
+      window.alterarStatus = function (id, novoStatus) {
+        let casos = JSON.parse(localStorage.getItem('casos')) || [];
+        const index = casos.findIndex(c => c.id === id);
+        if (index !== -1) {
+          casos[index].status = novoStatus;
+          localStorage.setItem('casos', JSON.stringify(casos));
+          atualizarLista();
+        }
+      };
+
+      window.excluirCaso = function (id) {
+        let casos = JSON.parse(localStorage.getItem('casos')) || [];
+        casos = casos.filter(c => c.id !== id);
+        localStorage.setItem('casos', JSON.stringify(casos));
+        atualizarLista();
+      };
+    });
+
+    function mostrarAba(id) {
+      document.querySelectorAll('.aba').forEach(div => div.classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
